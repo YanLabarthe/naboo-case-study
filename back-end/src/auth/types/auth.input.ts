@@ -25,8 +25,6 @@ export class SignUpInput extends SignInInput {
 }
 
 export class FullSignUpInput extends SignUpInput {
-  @Field()
-  @IsString()
-  @IsNotEmpty()
-  roleName!: string;
+  @Field(() => [String], { nullable: true, defaultValue: ['user'] })
+  roles?: string[];
 }

@@ -1,7 +1,7 @@
 import { Resolver, Query, Args } from '@nestjs/graphql';
 import { RoleService } from '../role.service';
 import { RoleMapper } from '../mapper/role.mapper';
-import { RoleDto } from '../types';
+import { RoleDtoWithPermissions } from '../types';
 
 @Resolver('Role')
 export class RoleResolver {
@@ -10,21 +10,26 @@ export class RoleResolver {
     private readonly roleMapper: RoleMapper,
   ) {}
 
-  @Query(() => [RoleDto])
-  async getRoles(): Promise<RoleDto[]> {
+  @Query(() => [RoleDtoWithPermissions])
+  async getRoles(): Promise<RoleDtoWithPermissions[]> {
     const roles = await this.roleService.getAll();
-    return roles.map((role) => this.roleMapper.convert(role));
+    const rolesDto = await Promise.all(
+      roles.map((role) => this.roleMapper.convert(role)),
+    );
+    return rolesDto;
   }
 
-  @Query(() => RoleDto)
-  async getRoleById(@Args('id') id: string): Promise<RoleDto> {
+  @Query(() => RoleDtoWithPermissions)
+  async getRole(@Args('id') id: string): Promise<RoleDtoWithPermissions> {
     const role = await this.roleService.getById(id);
     return this.roleMapper.convert(role);
   }
 
-  @Query(() => RoleDto)
-  async getRoleByName(@Args('name') name: string): Promise<RoleDto> {
-    const role = await this.roleService.getById(name);
+  @Query(() => RoleDtoWithPermissions)
+  async getRoleByName(
+    @Args('name') name: string,
+  ): Promise<RoleDtoWithPermissions> {
+    const role = await this.roleService.getByName(name);
     return this.roleMapper.convert(role);
   }
 }

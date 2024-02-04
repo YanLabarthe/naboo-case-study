@@ -1,28 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { Mapper } from 'src/utils/mapper';
-import { Activity } from '../schema/activity.schema';
+import { UserMapper } from 'src/user/mapper/user.mapper';
 import { ActivityDto } from '../types';
-import { RoleDto } from 'src/role/types';
+import { Activity } from '../schema/activity.schema';
 
 @Injectable()
-export class ActivityMapper implements Mapper<Activity, ActivityDto> {
-  convert(activity: Activity): ActivityDto {
-    const role =
-      activity.owner.role instanceof RoleDto ? activity.owner.role : undefined;
+export class ActivityMapper {
+  constructor(private readonly userMapper: UserMapper) {}
+
+  async convert(activity: Activity): Promise<ActivityDto> {
+    if (!activity.owner || typeof activity.owner === 'string') {
+      throw new Error('Owner is not populated');
+    }
+
+    const ownerDto = await this.userMapper.convert(activity.owner);
 
     return {
-      id: activity._id,
+      id: activity._id.toString(),
       name: activity.name,
       city: activity.city,
       description: activity.description,
       price: activity.price,
-      owner: {
-        id: activity.owner._id,
-        firstName: activity.owner.firstName,
-        lastName: activity.owner.lastName,
-        email: activity.owner.email,
-        role: role,
-      },
+      owner: ownerDto,
+      createdAt: activity.createdAt,
+      updatedAt: activity.updatedAt,
     };
   }
 }

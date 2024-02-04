@@ -6,6 +6,6 @@ export const users: CreateUserInput[] = [
     password: 'user1',
     firstName: 'John',
     lastName: 'Doe',
-    roleName: 'admin',
+    roles: ['admin'],
   },
 ];

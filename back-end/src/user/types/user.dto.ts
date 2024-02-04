@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Field, ObjectType } from '@nestjs/graphql';
-import { RoleDto } from 'src/role/types';
+import { RoleDto, RoleDtoWithPermissions } from 'src/role/types';
 
 @ObjectType()
 export class UserDto {
@@ -14,7 +15,15 @@ export class UserDto {
 
   @Field()
   email!: string;
+}
+@ObjectType()
+export class UserDtoWithRoles extends UserDto {
+  @Field((type) => [RoleDto], { nullable: 'itemsAndList' })
+  roles?: RoleDto[];
+}
 
-  @Field(() => RoleDto, { nullable: true })
-  role?: RoleDto;
+@ObjectType()
+export class UserDtoWithRolesAndPermissions extends UserDto {
+  @Field((type) => [RoleDtoWithPermissions], { nullable: 'itemsAndList' })
+  roles?: RoleDtoWithPermissions[];
 }

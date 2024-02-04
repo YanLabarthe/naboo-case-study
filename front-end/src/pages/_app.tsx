@@ -7,6 +7,7 @@ import { ApolloProvider } from "@apollo/client";
 import { Container, MantineProvider } from "@mantine/core";
 import type { AppProps } from "next/app";
 import { FavoritesProvider } from "@/contexts/favoriteContext";
+import { ActivityProvider } from "@/contexts/activityContext";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -14,12 +15,14 @@ export default function App({ Component, pageProps }: AppProps) {
       <SnackbarProvider>
         <ApolloProvider client={graphqlClient}>
           <AuthProvider>
-            <FavoritesProvider>
-              <Topbar routes={routes} />
-              <Container>
-                <Component {...pageProps} />
-              </Container>
-            </FavoritesProvider>
+            <ActivityProvider>
+              <FavoritesProvider>
+                <Topbar routes={routes} />
+                <Container>
+                  <Component {...pageProps} />
+                </Container>
+              </FavoritesProvider>
+            </ActivityProvider>
           </AuthProvider>
         </ApolloProvider>
       </SnackbarProvider>

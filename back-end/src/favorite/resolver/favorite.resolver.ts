@@ -3,7 +3,7 @@ import { FavoriteService } from '../favorite.service';
 import { CreateFavoriteInput } from '../types';
 import { ActivityDto } from 'src/activity/types';
 import { ActivityMapper } from 'src/activity/mapper/activity.mapper';
-import { isActivity } from 'src/utils/functions/isActivity';
+import { isActivity } from 'src/utils/functions/isType';
 
 @Resolver('Favorite')
 export class FavoriteResolver {
@@ -25,17 +25,17 @@ export class FavoriteResolver {
     @Args('userId', { type: () => String }) userId: string,
   ): Promise<ActivityDto[]> {
     const favorites = await this.favoriteService.getUserFavorites(userId);
-    const transformedFavorites = favorites
-      .map((favorite) => {
-        if (isActivity(favorite.activity)) {
-          return this.activityMapper.convert(favorite.activity);
-        }
-        return undefined;
-      })
-      .filter(
-        (activityDto): activityDto is ActivityDto => activityDto !== undefined,
-      );
+    const activityDtos = await Promise.all(
+      favorites
+        .map(async (favorite) => {
+          if (isActivity(favorite.activity)) {
+            return await this.activityMapper.convert(favorite.activity);
+          }
+          return null;
+        })
+        .filter((activityDto) => activityDto !== null),
+    );
 
-    return transformedFavorites;
+    return activityDtos as ActivityDto[];
   }
 }

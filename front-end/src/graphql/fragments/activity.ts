@@ -11,6 +11,8 @@ const ActivityFragment = gql`
     owner {
       ...Owner
     }
+    createdAt
+    updatedAt
   }
   ${OwnerFragment}
 `;

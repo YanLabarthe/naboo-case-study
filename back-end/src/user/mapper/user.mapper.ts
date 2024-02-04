@@ -1,20 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { Mapper } from 'src/utils/mapper';
 import { User } from '../schema/user.schema';
-import { UserDto } from '../types/user.dto';
-import { RoleDto } from 'src/role/types';
+import {
+  UserDto,
+  UserDtoWithRoles,
+  UserDtoWithRolesAndPermissions,
+} from '../types/user.dto';
+import { Mapper } from 'src/utils/mapper';
+import { RoleMapper } from 'src/role/mapper/role.mapper';
 
 @Injectable()
-export class UserMapper implements Mapper<User, UserDto> {
-  convert(user: User): UserDto {
-    const role = user.role instanceof RoleDto ? user.role : undefined;
+export class UserMapper
+  implements
+    Mapper<User, UserDto | UserDtoWithRoles | UserDtoWithRolesAndPermissions>
+{
+  constructor(private readonly roleMapper: RoleMapper) {}
 
-    return {
-      id: user._id,
+  async convert(
+    user: User,
+  ): Promise<UserDto | UserDtoWithRoles | UserDtoWithRolesAndPermissions> {
+    const basicUserDto: UserDto = {
+      id: user._id.toString(),
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: role,
+    };
+
+    if (!user.roles || user.roles.length === 0) {
+      return basicUserDto;
+    }
+
+    const rolesDtoWithPermissions = await Promise.all(
+      user.roles.map(async (role) => this.roleMapper.convert(role)),
+    );
+
+    return {
+      ...basicUserDto,
+      roles: rolesDtoWithPermissions,
     };
   }
 }

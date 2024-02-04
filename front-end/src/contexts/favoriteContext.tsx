@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { TOGGLE_FAVORITE_MUTATION } from "@/graphql/mutations/favorite/toggleFavorite";
 import { useAuth } from "@/hooks";
-import { GET_USER_FAVORITES_ACTIVITIES } from "@/graphql/queries/favorite/checkFavorite";
+import { GET_USER_FAVORITES_ACTIVITIES } from "@/graphql/queries/favorite/getFavorites";
 import { ActivityDto } from "@/graphql/generated/types";
 
 type FavoritesContextType = {

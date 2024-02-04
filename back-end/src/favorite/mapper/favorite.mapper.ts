@@ -5,7 +5,7 @@ import { FavoriteDto } from '../types';
 
 @Injectable()
 export class FavoriteMapper implements Mapper<Favorite, FavoriteDto> {
-  convert(favorite: Favorite): FavoriteDto {
+  async convert(favorite: Favorite): Promise<FavoriteDto> {
     return {
       id: favorite.id,
       userId: favorite.user.toString(),
