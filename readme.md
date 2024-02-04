@@ -2,8 +2,8 @@
 
 Le seul utilisateur ayant le role admin pour l'instant se log avec:
 
-email: user1@test.fr
-password: user1
+email: user1@test.fr  
+password: user1  
 
 ## What's used ?
 
