@@ -8,7 +8,6 @@ import { Badge, Button, Card, Grid, Group, Image, Text } from "@mantine/core";
 import { IconHeart } from "@tabler/icons-react";
 
 import Link from "next/link";
-import { useState } from "react";
 
 interface ActivityProps {
   activity: ActivityFragment;

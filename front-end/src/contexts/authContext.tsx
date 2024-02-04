@@ -26,6 +26,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { defaultVisibilityState, useActivities } from "./activityContext";
 
 interface AuthContextType {
   user: UserDtoWithRolesAndPermissions | null;
@@ -58,6 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<GetUserQuery["getMe"] | null>(null);
   const router = useRouter();
+  const { setActivities, setVisibilityState } = useActivities();
 
   const [getUser] = useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUser);
   const [signin] = useMutation<SigninMutation, SigninMutationVariables>(Signin);
@@ -106,11 +108,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const handleLogout = async () => {
+    setIsLoading(true);
+
     try {
-      setIsLoading(true);
       await logout();
       localStorage.removeItem("token");
+      localStorage.removeItem("visibilityState");
+
       setUser(null);
+      setActivities([]);
+      setVisibilityState(defaultVisibilityState);
+
       router.push("/");
     } catch (err) {
       snackbar.error("Une erreur est survenue");
