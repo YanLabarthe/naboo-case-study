@@ -2,14 +2,14 @@ import React, {
   createContext,
   useContext,
   useState,
+  useEffect,
   ReactNode,
   Dispatch,
   SetStateAction,
-  useEffect,
 } from "react";
 import { useQuery } from "@apollo/client";
 import { GetActivitiesQuery, ActivityDto } from "@/graphql/generated/types";
-import { useSnackbar } from "@/hooks";
+import { useAuth, useSnackbar } from "@/hooks";
 import GetActivities from "@/graphql/queries/activity/getActivities";
 
 type VisibilityState = {
@@ -21,10 +21,11 @@ interface ActivityContextType {
   setActivities: Dispatch<SetStateAction<ActivityDto[]>>;
   isLoading: boolean;
   visibilityState: VisibilityState;
+  setVisibilityState: Dispatch<SetStateAction<VisibilityState>>;
   toggleVisibility: (field: keyof ActivityDto) => void;
 }
 
-const defaultVisibilityState: VisibilityState = {
+export const defaultVisibilityState: VisibilityState = {
   city: true,
   description: true,
   name: true,
@@ -38,6 +39,7 @@ const defaultContextValue: ActivityContextType = {
   setActivities: () => {},
   isLoading: false,
   visibilityState: defaultVisibilityState,
+  setVisibilityState: () => {},
   toggleVisibility: () => {},
 };
 
@@ -61,6 +63,18 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({
   const [visibilityState, setVisibilityState] = useState<VisibilityState>(
     defaultVisibilityState
   );
+  const [isLocalStorageLoaded, setIsLocalStorageLoaded] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedVisibilityState = localStorage.getItem("visibilityState");
+      if (savedVisibilityState) {
+        setVisibilityState(JSON.parse(savedVisibilityState));
+      }
+      setIsLocalStorageLoaded(true);
+    }
+  }, []);
 
   const { data, loading, error } = useQuery<GetActivitiesQuery>(GetActivities, {
     onCompleted: (data) => {
@@ -74,18 +88,21 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({
   });
 
   useEffect(() => {
-    if (data && data.getActivities) {
-      setActivities(data.getActivities as ActivityDto[]);
+    if (isLocalStorageLoaded) {
+      localStorage.setItem("visibilityState", JSON.stringify(visibilityState));
     }
-    setIsLoading(loading);
-  }, [data, loading]);
+  }, [visibilityState, isLocalStorageLoaded]);
 
   const toggleVisibility = (field: keyof ActivityDto) => {
-    setVisibilityState((prevState) => {
-      const newState = { ...prevState, [field]: !prevState[field] };
-      return newState;
-    });
+    setVisibilityState((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
   };
+
+  if (!isLocalStorageLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ActivityContext.Provider
@@ -94,6 +111,7 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({
         setActivities,
         isLoading,
         visibilityState,
+        setVisibilityState,
         toggleVisibility,
       }}
     >

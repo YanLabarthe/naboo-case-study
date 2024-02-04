@@ -1,7 +1,12 @@
+import { useEffect } from "react";
 import { useAuth } from "@/hooks";
 
 export default function Logout() {
   const { handleLogout } = useAuth();
-  handleLogout();
+
+  useEffect(() => {
+    handleLogout();
+  }, [handleLogout]);
+
   return null;
 }

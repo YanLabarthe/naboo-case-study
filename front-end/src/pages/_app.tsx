@@ -14,16 +14,16 @@ export default function App({ Component, pageProps }: AppProps) {
     <MantineProvider withGlobalStyles withNormalizeCSS theme={mantineTheme}>
       <SnackbarProvider>
         <ApolloProvider client={graphqlClient}>
-          <AuthProvider>
-            <ActivityProvider>
+          <ActivityProvider>
+            <AuthProvider>
               <FavoritesProvider>
                 <Topbar routes={routes} />
                 <Container>
                   <Component {...pageProps} />
                 </Container>
               </FavoritesProvider>
-            </ActivityProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </ActivityProvider>
         </ApolloProvider>
       </SnackbarProvider>
     </MantineProvider>
