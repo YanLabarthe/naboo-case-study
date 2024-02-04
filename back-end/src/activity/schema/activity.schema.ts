@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, Types } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { User } from '../../user/schema/user.schema';
 
 @Schema({ timestamps: true })
@@ -22,6 +22,9 @@ export class Activity extends Document {
     required: true,
   })
   owner!: User;
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export const ActivitySchema = SchemaFactory.createForClass(Activity);

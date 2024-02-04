@@ -1,14 +1,13 @@
+import UserWithRolesAndPermissionsFragment from "@/graphql/fragments/userWithRolesAndPermissions";
 import gql from "graphql-tag";
 
 const GetUser = gql`
   query GetUser {
     getMe {
-      id
-      firstName
-      lastName
-      email
+      ...UserWithRolesAndPermissions
     }
   }
+  ${UserWithRolesAndPermissionsFragment}
 `;
 
 export default GetUser;

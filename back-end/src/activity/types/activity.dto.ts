@@ -20,4 +20,10 @@ export class ActivityDto {
 
   @Field(() => UserDto)
   owner!: UserDto;
+
+  @Field(() => Date)
+  createdAt!: Date;
+
+  @Field(() => Date)
+  updatedAt!: Date;
 }

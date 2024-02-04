@@ -15,26 +15,26 @@ export class ActivityResolver {
   @Query(() => [ActivityDto])
   async getActivities(): Promise<ActivityDto[]> {
     const activities = await this.activityService.getAll();
-
     return Promise.all(
-      activities.map(async (activity) => {
-        const activityDto = this.activityMapper.convert(activity);
-        return activityDto;
-      }),
+      activities.map((activity) => this.activityMapper.convert(activity)),
     );
   }
 
   @Query(() => [ActivityDto])
   async getLatestActivities(): Promise<ActivityDto[]> {
     const activities = await this.activityService.findLatest();
-    return activities.map((activity) => this.activityMapper.convert(activity));
+    return Promise.all(
+      activities.map((activity) => this.activityMapper.convert(activity)),
+    );
   }
 
   @Query(() => [ActivityDto])
   @UseGuards(AuthGuard)
   async getActivitiesByUser(@Context() context: any): Promise<ActivityDto[]> {
-    const activities = await this.activityService.getByUser(context.user!.id);
-    return activities.map((activity) => this.activityMapper.convert(activity));
+    const activities = await this.activityService.getByUser(context.user.id);
+    return Promise.all(
+      activities.map((activity) => this.activityMapper.convert(activity)),
+    );
   }
 
   @Query(() => [String])
@@ -54,7 +54,9 @@ export class ActivityResolver {
       activity,
       price,
     );
-    return activities.map((activity) => this.activityMapper.convert(activity));
+    return Promise.all(
+      activities.map((activity) => this.activityMapper.convert(activity)),
+    );
   }
 
   @Query(() => ActivityDto)

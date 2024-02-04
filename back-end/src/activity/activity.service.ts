@@ -15,7 +15,7 @@ export class ActivityService {
     return this.activityModel
       .find()
       .sort({ createdAt: -1 })
-      .populate('owner')
+      .populate('owner', 'firstName lastName email')
       .exec();
   }
 
@@ -24,7 +24,7 @@ export class ActivityService {
       .find()
       .sort({ createdAt: -1 })
       .limit(3)
-      .populate('owner')
+      .populate('owner', 'firstName lastName email')
       .exec();
   }
 
@@ -32,14 +32,14 @@ export class ActivityService {
     return this.activityModel
       .find({ owner: userId })
       .sort({ createdAt: -1 })
-      .populate('owner')
+      .populate('owner', 'firstName lastName email')
       .exec();
   }
 
   async getById(id: string): Promise<Activity> {
     const activity = await this.activityModel
       .findById(id)
-      .populate('owner')
+      .populate('owner', 'firstName lastName email')
       .exec();
     if (!activity) throw new NotFoundException();
     return activity;
@@ -50,7 +50,7 @@ export class ActivityService {
       ...data,
       owner: userId,
     });
-    return activity.populate('owner');
+    return activity.populate('owner', 'firstName lastName email');
   }
 
   async findCities(): Promise<string[]> {
@@ -70,7 +70,7 @@ export class ActivityService {
           ...(activity ? [{ name: { $regex: activity, $options: 'i' } }] : []),
         ],
       })
-      .populate('owner')
+      .populate('owner', 'firstName lastName email')
       .exec();
   }
 

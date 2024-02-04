@@ -5,9 +5,9 @@ import { PermissionDto } from '../types';
 
 @Injectable()
 export class PermissionMapper implements Mapper<Permission, PermissionDto> {
-  convert(permission: Permission): PermissionDto {
+  async convert(permission: Permission): Promise<PermissionDto> {
     return {
-      id: permission._id,
+      id: permission._id.toString(),
       name: permission.name,
     };
   }

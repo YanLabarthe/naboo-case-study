@@ -9,6 +9,8 @@ import {
   SigninMutationVariables,
   SignupMutation,
   SignupMutationVariables,
+  UserDto,
+  UserDtoWithRolesAndPermissions,
 } from "@/graphql/generated/types";
 import Logout from "@/graphql/mutations/auth/logout";
 import Signin from "@/graphql/mutations/auth/signin";
@@ -17,22 +19,34 @@ import GetUser from "@/graphql/queries/auth/getUser";
 import { useSnackbar } from "@/hooks";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { useRouter } from "next/router";
-import { createContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface AuthContextType {
-  user: GetUserQuery["getMe"] | null;
+  user: UserDtoWithRolesAndPermissions | null;
+  setUser: Dispatch<SetStateAction<UserDtoWithRolesAndPermissions | null>>;
   isLoading: boolean;
   handleSignin: (input: SignInInput) => Promise<void>;
   handleSignup: (input: SignUpInput) => Promise<void>;
   handleLogout: () => Promise<void>;
+  hasRole: (role: string) => boolean;
+  hasPermission: (permission: string) => boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  setUser: () => {},
   isLoading: false,
   handleSignin: () => Promise.resolve(),
   handleSignup: () => Promise.resolve(),
   handleLogout: () => Promise.resolve(),
+  hasRole: () => false,
+  hasPermission: () => false,
 });
 
 interface AuthProviderProps {
@@ -60,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [getUser, user]);
 
   const handleSignin = async (input: SignInInput) => {
     try {
@@ -68,7 +82,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await signin({ variables: { signInInput: input } });
       const token = response.data?.login?.access_token || "";
       localStorage.setItem("token", token);
-      await getUser().then((res) => setUser(res.data?.getMe || null));
+      await getUser({ fetchPolicy: "network-only" }).then((res) =>
+        setUser(res.data?.getMe || null)
+      );
       router.push("/profil");
     } catch (err) {
       snackbar.error("Une erreur est survenue");
@@ -103,9 +119,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const hasRole = (roleName: string): boolean => {
+    return user?.roles?.some((role) => role?.name === roleName) ?? false;
+  };
+
+  const hasPermission = (permissionName: string): boolean => {
+    return (
+      user?.roles?.some((role) =>
+        role?.permissions?.some(
+          (permission) => permission?.name === permissionName
+        )
+      ) ?? false
+    );
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, handleSignin, handleSignup, handleLogout }}
+      value={{
+        user,
+        setUser,
+        isLoading,
+        handleSignin,
+        handleSignup,
+        handleLogout,
+        hasRole,
+        hasPermission,
+      }}
     >
       {children}
     </AuthContext.Provider>
